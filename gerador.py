@@ -6,7 +6,7 @@ from src.vigenere.service import Vigenere
 
 def gerador():
 	grupo = 'Grupo13'
-	diretorio = 'texto/teste.txt'
+	diretorio = "aberto/mono/Grupo13_texto_aberto.txt"
 	
 	conteudo = Utils.parse(diretorio)
 
