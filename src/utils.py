@@ -19,6 +19,23 @@ class Utils:
         return arquivo_sorteado
 
     @staticmethod
+    def carregar_matriz(diretorio: str):
+        with open(diretorio, "r") as f:
+            lines = f.readlines()
+        
+        # Processa cada linha removendo colchetes e espaços
+        matrix = []
+        for line in lines:
+            if line.strip().startswith("["):
+                # Remove colchetes e divide por espaços
+                clean_line = line.replace("[", "").replace("]", "").strip()
+                # Filtra elementos vazios e converte para float
+                row = [float(x) for x in clean_line.split() if x]
+                matrix.append(row)
+        
+        return np.array(matrix, dtype=int)
+
+    @staticmethod
     def parse(nome_arquivo: str):
         # abre o arquivo para leitura
         with open(nome_arquivo, 'r', encoding="iso-8859-1") as arquivo_entrada:
