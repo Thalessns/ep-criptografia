@@ -28,7 +28,7 @@ class Mono():
         Utils.salvar_arquivo('aberto/mono/' + grupo + '_' + 'texto_aberto.txt', ''.join(texto_aberto))
 
     @staticmethod
-    def decript_brute_force(conteudo_crifrado: str, texto_base: str):
+    def decriptar_forca_bruta(conteudo_crifrado: str, texto_base: str):
         """
         faz loop por todas as possibilidades do texto base e tenta achar um mapeamento que daria certo,
         se houver apenas 1 mapeamento, retorna a mensagem original e a chave
@@ -38,16 +38,16 @@ class Mono():
 
         for pos_texto in range(len(texto_base) - tamanho + 1):
             trecho = texto_base[pos_texto:pos_texto + tamanho]
-            chave = Mono.find_possible_key(trecho, conteudo_crifrado)
+            chave = Mono.encontra_possivel_chave(trecho, conteudo_crifrado)
             if chave:
-                chave = Mono.find_possible_key(trecho, conteudo_crifrado) ## para debug
+                chave = Mono.encontra_possivel_chave(trecho, conteudo_crifrado) ## para debug
                 chaves_possiveis.append((pos_texto, trecho, chave))
 
         if len(chaves_possiveis) == 1:
             print(f"na posição {chaves_possiveis[0][0]} encontramos {chaves_possiveis[0][1]} que foi criptografado com a chave {chaves_possiveis[0][2]}")
 
     @staticmethod
-    def find_possible_key(trecho_texto_conhecido: str, mensagem_cifrada: str):
+    def encontra_possivel_chave(trecho_texto_conhecido: str, mensagem_cifrada: str):
         chave_criptografia = {}
         chave_decriptografia = {}
 
