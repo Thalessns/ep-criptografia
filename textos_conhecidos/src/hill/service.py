@@ -4,7 +4,7 @@ import random
 import numpy as np
 from numpy.linalg import inv
 
-from src.utils import Utils
+from textos_conhecidos.src.utils import Utils
 
 
 class Hill():

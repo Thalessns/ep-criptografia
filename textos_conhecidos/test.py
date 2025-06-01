@@ -6,10 +6,9 @@ from src.hill.service import Hill
 if __name__ == "__main__":
     
     # Mono
-    """conteudo = Utils.parse("cifrado/mono/Grupo13_texto_cifrado_teste.txt")
-    chave = Utils.parse("aberto/mono/Grupo13_key.txt")
-    resultado = Mono.decript(conteudo, chave)
-    print(resultado)"""
+    texto_cifrado = Utils.parse("cifrado/mono/teste_texto_cifrado.txt")
+    texto_aberto = Utils.parse("texto/avesso_da_pele.txt")
+    Mono.decript_brute_force(texto_cifrado, texto_aberto)
 
     # Vigenere
     """conteudo = Utils.parse("cifrado/vigenere/Grupo13_20_texto_cifrado_teste.txt")
@@ -18,7 +17,7 @@ if __name__ == "__main__":
     print(resultado)"""
 
     # Hill
-    conteudo = Utils.parse("cifrado/hill/Grupo13_5_texto_cifrado_teste.txt")
+    """conteudo = Utils.parse("cifrado/hill/Grupo13_5_texto_cifrado_teste.txt")
     chave = Utils.carregar_matriz("aberto/hill/Grupo13_5_key.txt")
     resultado = Hill.decript(conteudo, chave)
-    print(resultado)
+    print(resultado)"""

@@ -1,7 +1,7 @@
 import string
 import numpy as np
 
-from src.utils import Utils
+from textos_conhecidos.src.utils import Utils
 
 
 class Vigenere():
