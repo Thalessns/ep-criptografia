@@ -34,20 +34,48 @@ class Vigenere():
         Utils.salvar_arquivo('aberto/vigenere/' + grupo + '_' + str(k) + '_' +  'texto_aberto.txt',''.join(texto_aberto))
 
     @staticmethod
-    def decript(texto_cifrado: str, chave: str):
-        tamanho = len(texto_cifrado)
-        
-        # Converte a chave de texto para valores numéricos
+    def decriptar_forca_bruta(conteudo_cifrado: str, texto_base: str, tamanho_chave: int):
+        tamanho = len(conteudo_cifrado)
+        for i in range(len(texto_base) - tamanho + 1):
+            trecho = texto_base[i:i+tamanho]
+            chave = Vigenere.encontra_possivel_chave(trecho, conteudo_cifrado, tamanho_chave)
+            if chave:
+                print(f"na posição {i} encontramos {trecho} que foi criptografado com a chave {chave}")
+                break
+
+    @staticmethod
+    def encontra_possivel_chave(trecho_texto_conhecido: str, mensagem_cifrada: str, tamanho_chave: int):
+        """Cria uma chave de tamanho `tamanho_chave` a partir de um trecho de texto conhecido e uma mensagem cifrada,
+         tenta cifrar o trecho conhecido com a chave gerada.
+        Se a cifra for igual à mensagem cifrada, retorna a chave."""
+
+        possivel_chave = ""
+
+        for letra_texto_conhecido, letra_texto_cifrado in zip(trecho_texto_conhecido, mensagem_cifrada):
+            if len(possivel_chave) == tamanho_chave:
+                break
+            distancia = (ord(letra_texto_cifrado) - ord(letra_texto_conhecido) + 26) % 26
+            possivel_chave += chr(ord('a') + distancia)
+
+        while len(possivel_chave) < len(mensagem_cifrada):
+            possivel_chave += possivel_chave
+
+        chave_completa = possivel_chave[:len(mensagem_cifrada)]
+        if Vigenere.encripta_chave_escolhida(trecho_texto_conhecido, chave_completa) == mensagem_cifrada:
+            return chave_completa
+
+        return None
+
+    @staticmethod
+    def encripta_chave_escolhida(conteudo: str, chave: str):
+
         az = string.ascii_lowercase
         alf2dec = {az[i]: i for i in range(26)}
         dec2alf = {i: az[i] for i in range(26)}
-        
-        # Converte a chave e o texto cifrado para valores numéricos
-        chave_numerica = [alf2dec[i] for i in chave]
-        texto_cifrado_numerico = [alf2dec[i] for i in texto_cifrado]
-        
-        # Aplica a descriptografia (subtração módulo 26)
-        texto_aberto_numerico = (np.array(texto_cifrado_numerico) - np.array(chave_numerica)) % 26
-        texto_aberto = [dec2alf[i] for i in texto_aberto_numerico]
-        
-        return ''.join(texto_aberto)
+
+        texto_numerico = [alf2dec[i] for i in conteudo]
+        chave_int = [alf2dec[i] for i in chave]
+        texto_cifrado = (np.array(texto_numerico) + chave_int) % 26
+        texto_cifrado = [dec2alf[i] for i in texto_cifrado]
+        return ''.join(texto_cifrado)
+

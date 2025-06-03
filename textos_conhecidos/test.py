@@ -6,15 +6,17 @@ from src.hill.service import Hill
 if __name__ == "__main__":
     
     # Mono
-    texto_cifrado = Utils.parse("cifrado/mono/teste_texto_cifrado.txt")
+    """texto_cifrado = Utils.parse("cifrado/mono/teste_texto_cifrado.txt")
     texto_aberto = Utils.parse("texto/avesso_da_pele.txt")
-    Mono.decript_brute_force(texto_cifrado, texto_aberto)
+    Mono.decriptar_forca_bruta(texto_cifrado, texto_aberto)"""
 
     # Vigenere
-    """conteudo = Utils.parse("cifrado/vigenere/Grupo13_20_texto_cifrado_teste.txt")
-    chave = Utils.parse("aberto/vigenere/Grupo13_20_key.txt")
-    resultado = Vigenere.decript(conteudo, chave)
-    print(resultado)"""
+    arquivo = Utils.sortear_arquivo_txt("cifrado/vigenere/")
+    conteudo = Utils.parse("cifrado/vigenere/" + arquivo)
+    tamanho_chave = int(arquivo[8:10])
+    print(f"Analisando o arquivo: {arquivo}, tamanho da chave: {tamanho_chave}")
+    resultado = Vigenere.decriptar_forca_bruta(conteudo, Utils.parse("texto/avesso_da_pele.txt"), tamanho_chave)
+
 
     # Hill
     """conteudo = Utils.parse("cifrado/hill/Grupo13_5_texto_cifrado_teste.txt")
