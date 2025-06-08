@@ -3,8 +3,21 @@ import string
 import random
 import numpy as np
 from numpy.linalg import inv
-
 from textos_conhecidos.src.utils import Utils
+import time
+
+
+def timeit(func):
+    """Decorator to time the execution of a function."""
+
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Execution time: {end_time - start_time:.4f} seconds")
+        return result
+
+    return wrapper
 
 
 class Hill():
@@ -55,22 +68,75 @@ class Hill():
         Utils.salvar_arquivo('aberto/hill/' + grupo + '_' + str(k) + '_' + 'texto_aberto.txt', ''.join(texto_aberto))
 
     @staticmethod
+    @timeit
     def decriptar_forca_bruta(texto_cifrado: str, texto_base: str, k: int):
-        pass
+        """Testa um trecho de tamanho igual ao texto cifrado em todas as posições do texto base.
+        Para cada trecho, quebra em blocos de tamanho k * k (mínimo possível para uma chave única).
+        Tenta inverter essa matriz do trecho aberto (talvez não seja possível, quanto maior o texto,
+        mais provavel algum bloco ser invertível).
+         Utiliza K = C * P^-1 mod 26 para descobrir uma chave possível.
+         Se a chave criptografar o trecho aberto e gerar o texto cifrado, retorna a chave"""
+        tamanho_trecho = len(texto_cifrado)
+
+        for pos in range(len(texto_base) - tamanho_trecho + 1):
+            trecho_aberto = texto_base[pos:pos + tamanho_trecho]
+            for i in range(0, tamanho_trecho, k):
+                if i + k * k > tamanho_trecho:
+                    continue
+                trecho_aberto_teste = trecho_aberto[i:i + k * k]
+                texto_cifrado_teste = texto_cifrado[i:i + k * k]
+                matriz_chave = Hill.encontra_possivel_chave(texto_cifrado_teste, trecho_aberto_teste, k)
+                if matriz_chave is not None:
+                    if Hill.encripta_chave_escolhida(trecho_aberto, matriz_chave, k) == texto_cifrado:
+                        print(
+                            f"Na posição {pos} encontramos o trecho '{trecho_aberto}' que foi criptografado com a chave:")
+                        print(matriz_chave)
+                        return None
+
+        return None
 
     @staticmethod
-    def encontra_possivel_chave(matriz_trecho: np.ndarray, matriz_cifrado: np.ndarray):
-        """Encontra a possível chave da cifra de Hill dado um trecho de texto plano e cifrado."""
-        if matriz_trecho.shape != matriz_cifrado.shape:
-            raise ValueError("As matrizes devem ter as mesmas dimensões.")
+    def encontra_possivel_chave(texto_cifrado: str, trecho_aberto: str, k: int) -> np.ndarray or None:
+        """ Tenta inverter a matriz do texto aberto para encontrar uma chave possível"""
 
-        matriz_inversa = Hill.calcula_matriz_inversa(matriz_trecho)
-        if matriz_inversa is None:
+        matriz_cifrado = Hill.monta_matriz(Hill.convert_letter_to_number(texto_cifrado), k)
+        matriz_aberto = Hill.monta_matriz(Hill.convert_letter_to_number(trecho_aberto), k)
+
+        matriz_inversa_aberto = Hill.calcula_matriz_inversa(matriz_aberto)
+        if matriz_inversa_aberto is None:
             return None  # Não é possível calcular a inversa
 
-        chave = (matriz_cifrado @ matriz_inversa) % 26
-        return chave.astype(int)
+        matriz_chave = (matriz_cifrado @ matriz_inversa_aberto) % 26
+        return matriz_chave
 
+    @staticmethod
+    def encripta_chave_escolhida(conteudo: str, chave: np.ndarray, k: int) -> str:
+        """ Encripta o conteúdo usando a chave fornecida"""
+        az = string.ascii_lowercase
+        alf2dec = {az[i]: i for i in range(26)}
+        dec2alf = {i: az[i] for i in range(26)}
+
+        texto_numerico = Hill.convert_letter_to_number(conteudo)
+        tamanho = len(texto_numerico)
+
+        if tamanho % k != 0:
+            raise ValueError("O tamanho do texto deve ser múltiplo de k.")
+
+        texto_cifrado = np.array(texto_numerico).reshape((int(tamanho / k), k)).T
+        texto_cifrado = chave @ texto_cifrado % 26
+        texto_cifrado = texto_cifrado.T.reshape(tamanho)
+        texto_cifrado = [dec2alf[i] for i in texto_cifrado]
+
+        return ''.join(texto_cifrado)
+
+    @staticmethod
+    def monta_matriz(numeros: list, k: int):
+        """ Monta uma matriz a partir de uma lista de números, dividindo-os em blocos de tamanho k"""
+        tamanho = len(numeros)
+        if tamanho % k != 0:
+            raise ValueError("O tamanho do texto deve ser múltiplo de k.")
+        matriz = np.array(numeros).reshape((int(tamanho / k), k)).T
+        return matriz
 
     @staticmethod
     def convert_letter_to_number(texto: str) -> list:
@@ -105,61 +171,3 @@ class Hill():
                 matriz_adjunta[j][i] = xij
 
         return matriz_adjunta
-
-
-"""# Exemplo de uso
-matriz_cifrada = np.array([[4, 23], [19, 21]])
-matriz_cifrada = np.array([[11, 14], [11, 19]])
-matriz_inversa = Hill.calcula_matriz_inversa(matriz_cifrada)
-print(f"Matriz Inversa: {matriz_inversa}")
-chave = (matriz_cifrada @ matriz_inversa) % 26
-print(f"chave {chave}")
-print("----------------")
-
-
-import numpy as np
-from sympy import Matrix
-
-# Função para converter letras para números
-def letras_para_numeros(texto):
-    return [ord(c) - ord('A') for c in texto]
-
-# Entradas
-texto_claro = "LLOT"
-texto_cifrado = "ETXV"
-
-# Conversão
-P1 = letras_para_numeros(texto_claro[:2])  # LL
-P2 = letras_para_numeros(texto_claro[2:])  # OT
-
-C1 = letras_para_numeros(texto_cifrado[:2])  # ET
-C2 = letras_para_numeros(texto_cifrado[2:])  # XV
-
-# Matrizes
-P = np.array([[P1[0], P2[0]], [P1[1], P2[1]]])  # Texto claro
-C = np.array([[C1[0], C2[0]], [C1[1], C2[1]]])  # Texto cifrado
-
-# Inversa modular de P
-P_sym = Matrix(P)
-P_inv_mod26 = P_sym.inv_mod(26)
-P_inv = np.array(P_inv_mod26).astype(int)
-
-# Calculando a chave
-K = (C @ P_inv) % 26
-
-# Verificação
-C_verificacao = (K @ P) % 26
-
-# Exibindo resultados
-print("Matriz do texto claro (P):")
-print(P)
-print("\nMatriz do texto cifrado (C):")
-print(C)
-print("\nInversa modular de P (mod 26):")
-print(P_inv)
-print("\nMatriz-chave K:")
-print(K)
-print("\nVerificação (K @ P % 26):")
-print(C_verificacao)
-"""
-
