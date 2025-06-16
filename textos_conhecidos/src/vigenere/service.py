@@ -40,8 +40,10 @@ class Vigenere():
             trecho = texto_base[i:i+tamanho]
             chave = Vigenere.encontra_possivel_chave(trecho, conteudo_cifrado, tamanho_chave)
             if chave:
-                print(f"na posição {i} encontramos {trecho} que foi criptografado com a chave {chave}")
-                break
+                print(f"Na posição {i} encontramos '{trecho}' que foi criptografado com a chave '{chave}'")
+                Utils.salvar_arquivo('aberto/vigenere/Grupo_13_' + str(tamanho_chave) + '_' + 'key.txt', chave)
+                Utils.salvar_arquivo('aberto/vigenere/Grupo_13_' + str(tamanho_chave) + '_' + 'texto_aberto.txt', trecho)
+                return
 
     @staticmethod
     def encontra_possivel_chave(trecho_texto_conhecido: str, mensagem_cifrada: str, tamanho_chave: int):

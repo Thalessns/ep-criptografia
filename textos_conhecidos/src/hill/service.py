@@ -4,20 +4,6 @@ import random
 import numpy as np
 from numpy.linalg import inv
 from textos_conhecidos.src.utils import Utils
-import time
-
-
-def timeit(func):
-    """Decorator to time the execution of a function."""
-
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        print(f"Execution time: {end_time - start_time:.4f} seconds")
-        return result
-
-    return wrapper
 
 
 class Hill():
@@ -68,7 +54,6 @@ class Hill():
         Utils.salvar_arquivo('aberto/hill/' + grupo + '_' + str(k) + '_' + 'texto_aberto.txt', ''.join(texto_aberto))
 
     @staticmethod
-    @timeit
     def decriptar_forca_bruta(texto_cifrado: str, texto_base: str, k: int):
         """Testa um trecho de tamanho igual ao texto cifrado em todas as posições do texto base.
         Para cada trecho, quebra em blocos de tamanho k * k (mínimo possível para uma chave única).
@@ -91,6 +76,8 @@ class Hill():
                         print(
                             f"Na posição {pos} encontramos o trecho '{trecho_aberto}' que foi criptografado com a chave:")
                         print(matriz_chave)
+                        Utils.salvar_arquivo('aberto/hill/Grupo_13_' + str(k) + '_' + 'key.txt', str(matriz_chave))
+                        Utils.salvar_arquivo('aberto/hill/Grupo_13_' + str(k) + '_' + 'texto_aberto.txt', trecho_aberto)
                         return None
 
         return None
